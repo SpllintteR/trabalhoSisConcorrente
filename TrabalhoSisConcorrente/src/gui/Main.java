@@ -3,6 +3,7 @@ package gui;
 import java.util.Scanner;
 
 import pkg.Cidade;
+import pkg.Cidade_jomp;
 
 public class Main {
 
@@ -13,7 +14,7 @@ public class Main {
 				int quantMeses = Integer.parseInt(scan.nextLine());
 				System.out.print("Digite o valor do intervalo (ms) entre cada mês: ");
 				long intervalo = Integer.parseInt(scan.nextLine());
-				Cidade cidade = new Cidade(quantMeses, intervalo);
+				Cidade_jomp cidade = new Cidade_jomp(quantMeses, intervalo);
 				cidade.execute();
 		} catch (Exception ex) {
 			ex.printStackTrace();

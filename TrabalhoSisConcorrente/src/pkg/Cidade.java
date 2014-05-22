@@ -7,20 +7,21 @@ import java.util.Random;
 import jomp.runtime.OMP;
 import BaseDados.FamiliasManager;
 
-public class Cidade{
-
+public class Cidade {
+	
 	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 	private StringBuilder estastistica = new StringBuilder();
 	public long intervalo;
 	public int quantMeses;
-	private final List<Familia> familias = new ArrayList<>();
+	private List familias;
 	private long consumoAgua;
 	private long consumoAlimentacao;
 	private long consumoLuz;
-
-	public Cidade(final int quantMeses, final long intervalo) {
-		this.quantMeses = quantMeses;
-		this.intervalo = intervalo;
+	
+	public Cidade(int quantMeses_, long intervalo_) {
+		familias = new ArrayList();
+		this.quantMeses = quantMeses_;
+		this.intervalo = intervalo_;
 		Familia[] loadFamilys = FamiliasManager.loadFamilys();
 		int i = 0;
 		int length = loadFamilys.length;
@@ -32,7 +33,6 @@ public class Cidade{
 			for(i = 0; i < length; i++){
 				familia = loadFamilys[i];
 				if (familia != null) {
-					familia.setCidade(this);
 					familias.add(familia);
 				}
 			}
@@ -61,7 +61,6 @@ public class Cidade{
 				int internalConsumoLuz = 0;
 				long internalConsumoAlimentacao = 0;
 				
-				OMP.setNumThreads(100);
 				//omp parallel sections private(i,familia,internalConsumoLuz,internalConsumoAlimentacao)
 				{
 					//omp section
@@ -69,9 +68,11 @@ public class Cidade{
 						for(i = 0; i < size; i++){
 							//omp critical
 							{
-								familia = familias.get(i);
-								for(Pessoa pessoa: familia.getIntegrantes()){
-									internalConsumoAlimentacao += (long) (pessoa.getPeso() * FOODMAGICNUMBER * 30);
+								familia = (Familia) familias.get(i);
+								List pessoas = familia.getIntegrantes();
+								int qntPessoas = pessoas.size();
+								for(int j = 0; j < qntPessoas; j++){
+									internalConsumoAlimentacao += (long) (((Pessoa) pessoas.get(j)).getPeso() * FOODMAGICNUMBER * 30);
 								}
 								addConsumoAlimentacao(internalConsumoAlimentacao);
 							}
@@ -83,9 +84,11 @@ public class Cidade{
 						for(i = 0; i < size; i++){
 							//omp critical
 							{
-								familia = familias.get(i);
-								for(Pessoa pessoa: familia.getIntegrantes()){
-									internalConsumoLuz += pessoa.getRenda() * LIGHTMAGICNUMBER; 
+								familia = (Familia) familias.get(i);
+								List pessoas = familia.getIntegrantes();
+								int qntPessoas = pessoas.size();
+								for(int j = 0; j < qntPessoas; j++){
+									internalConsumoLuz += ((Pessoa) pessoas.get(j)).getRenda() * LIGHTMAGICNUMBER; 
 								}
 								addConsumoLuz(internalConsumoLuz);
 							}
@@ -97,8 +100,8 @@ public class Cidade{
 						for(i = 0; i < size; i++){
 							//omp critical
 							{
-								familia = familias.get(i);
-								familia.getCidade().addConsumoAgua(familia.getIntegrantes().size() * AGUAPORDIA * 30);
+								familia = (Familia) familias.get(i);
+								addConsumoAgua(familia.getIntegrantes().size() * AGUAPORDIA * 30);
 							}
 						}
 					}
@@ -110,7 +113,7 @@ public class Cidade{
  		}
 		System.out.println(estastistica.toString());
 	}
-
+	
 	private void showStatus() {
 		estastistica.append(getTamanhoPopulacao());
 		estastistica.append("\t\t");
@@ -133,8 +136,8 @@ public class Cidade{
 	public void addConsumoLuz(final long consumoLuz) {
 		this.consumoLuz += consumoLuz;
 	}
-
-	public synchronized void addPopulacao() {
+	
+	public void addPopulacao() {
 		int cresimentoPop = (int) (getTamanhoPopulacao() * 0.03);
 		if (cresimentoPop == 0) {
 			cresimentoPop = 1;
@@ -142,29 +145,28 @@ public class Cidade{
 		Random familyRandom = new Random();
 
 		int i = 0;
-		OMP.setNumThreads(100);
 		//omp parallel
 		{
 			//omp for
 			for ( i = 0; i < cresimentoPop; i++) {
-				Familia familia = familias.get(familyRandom.nextInt(familias.size()));
+				Familia familia = (Familia) familias.get(familyRandom.nextInt(familias.size()));
 				familia.addNovoIntegrante();
 			}
 		}
 	}
 
-	public synchronized int getTamanhoPopulacao() {
+	public int getTamanhoPopulacao() {
 		int i = 0;
 		int size = familias.size();
 		int tamPopulacao = 0;
-		OMP.setNumThreads(100);
 		//omp parallel reduction(+:tamPopulacao)
 		{
 			//omp for
 			for (i = 0; i < size; i++) {
-				tamPopulacao += familias.get(i).getPeopleCount();
+				tamPopulacao += ((Familia) familias.get(i)).getPeopleCount();
 			}
 		}
 		return tamPopulacao;
 	}
+
 }

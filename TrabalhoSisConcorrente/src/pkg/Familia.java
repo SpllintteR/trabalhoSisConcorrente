@@ -8,7 +8,6 @@ import java.util.Random;
 public class Familia implements Serializable {
 	
 	private static final long	serialVersionUID	= -5070026948247923813L;
-	private Cidade cidade;
 	private final List<Pessoa> integrantes = new ArrayList<>();
 	
 	public int getPeopleCount() {
@@ -47,14 +46,6 @@ public class Familia implements Serializable {
 		integrantes.add(new Pessoa(Escolaridade.values()[mediaEscolaridade], mediaRenda, mediaPeso));
 	}
 	
-	public Cidade getCidade() {
-		return cidade;
-	}
-
-	public void setCidade(Cidade cidade) {
-		this.cidade = cidade;
-	}
-
 	public List<Pessoa> getIntegrantes() {
 		return integrantes;
 	}
