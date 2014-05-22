@@ -17,18 +17,20 @@ public class Cidade {
 	private long consumoAgua;
 	private long consumoAlimentacao;
 	private long consumoLuz;
+	private int length;
+	private Familia[] loadFamilys;
+	private Familia familia;
 	
-	public Cidade(int quantMeses_, long intervalo_) {
+	public Cidade(int quantMeses, long intervalo) {
 		familias = new ArrayList();
-		this.quantMeses = quantMeses_;
-		this.intervalo = intervalo_;
-		Familia[] loadFamilys = FamiliasManager.loadFamilys();
+		this.quantMeses = quantMeses;
+		this.intervalo = intervalo;
+		loadFamilys = FamiliasManager.loadFamilys();
 		int i = 0;
-		int length = loadFamilys.length;
-		Familia familia = null;
+		length = loadFamilys.length;
 		
 		OMP.setNumThreads(length);
-		//omp parallel private(i,familia)
+		//omp parallel private(i)
 		{
 			for(i = 0; i < length; i++){
 				familia = loadFamilys[i];
@@ -50,26 +52,24 @@ public class Cidade {
 	public void execute() {
 		try {
 			while (quantMeses > 0) {
-				showStatus();
 				consumoAgua = 0;
 				consumoAlimentacao = 0;
 				consumoLuz = 0;
-				addPopulacao();
 				int i = 0;
 				int size = familias.size();
 				Familia familia;
-				int internalConsumoLuz = 0;
+				int internalConsumoLuz  = 0;
 				long internalConsumoAlimentacao = 0;
 				
-				//omp parallel sections private(i,familia,internalConsumoLuz,internalConsumoAlimentacao)
+				//omp parallel sections private(i,internalConsumoLuz,internalConsumoAlimentacao)
 				{
 					//omp section
 					{
 						for(i = 0; i < size; i++){
 							//omp critical
 							{
-								familia = (Familia) familias.get(i);
-								List pessoas = familia.getIntegrantes();
+								Familia familiax = (Familia) familias.get(i);
+								List pessoas = familiax.getIntegrantes();
 								int qntPessoas = pessoas.size();
 								for(int j = 0; j < qntPessoas; j++){
 									internalConsumoAlimentacao += (long) (((Pessoa) pessoas.get(j)).getPeso() * FOODMAGICNUMBER * 30);
@@ -100,13 +100,15 @@ public class Cidade {
 						for(i = 0; i < size; i++){
 							//omp critical
 							{
-								familia = (Familia) familias.get(i);
-								addConsumoAgua(familia.getIntegrantes().size() * AGUAPORDIA * 30);
+								Familia familiax = (Familia) familias.get(i);
+								addConsumoAgua(familiax.getIntegrantes().size() * AGUAPORDIA * 30);
 							}
 						}
 					}
 				}
 				quantMeses--;
+				showStatus();
+				addPopulacao();
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -149,8 +151,8 @@ public class Cidade {
 		{
 			//omp for
 			for ( i = 0; i < cresimentoPop; i++) {
-				Familia familia = (Familia) familias.get(familyRandom.nextInt(familias.size()));
-				familia.addNovoIntegrante();
+				Familia familiax = (Familia) familias.get(familyRandom.nextInt(familias.size()));
+				familiax.addNovoIntegrante();
 			}
 		}
 	}

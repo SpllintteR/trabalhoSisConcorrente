@@ -9,7 +9,7 @@ import pkg.Pessoa;
 public class BaseDados {
 	
 	public static void main(final String[] args) {
-		int TotalPeople = 1000;
+		int TotalPeople = 100;
 		Pessoa[] listaPessoas = new Pessoa[TotalPeople];
 		Random random = new Random();
 		for (int i = 0; i < TotalPeople; i++) {
@@ -40,6 +40,20 @@ public class BaseDados {
 			}
 			foundFamily = false;
 		}
-		FamiliasManager.saveFamilys(familias);
+		int x = 0;
+		for(Familia familia: familias){
+			if (familia != null){
+				x++;
+			}
+		}
+		Familia[] familiax = new Familia[x];
+		x--;
+		for(Familia familia: familias){
+			if (familia != null){
+				familiax[x] = familia;
+				x--;
+			}
+		}
+		FamiliasManager.saveFamilys(familiax);
 	}
 }
