@@ -57,7 +57,6 @@ public class Cidade_jomp {
 				consumoLuz = 0;
 				int i = 0;
 				int size = familias.size();
-				Familia familia;
 				int internalConsumoLuz  = 0;
 				long internalConsumoAlimentacao = 0;
 				
@@ -69,28 +68,14 @@ public class Cidade_jomp {
 							//omp critical
 							{
 								Familia familiax = (Familia) familias.get(i);
-								List pessoas = familiax.getIntegrantes();
-								int qntPessoas = pessoas.size();
-								for(int j = 0; j < qntPessoas; j++){
-									internalConsumoAlimentacao += (long) (((Pessoa) pessoas.get(j)).getPeso() * FOODMAGICNUMBER * 30);
+								if (familiax != null) {
+									List pessoas = familiax.getIntegrantes();
+									int qntPessoas = pessoas.size();
+									for(int j = 0; j < qntPessoas; j++){
+										internalConsumoAlimentacao += (long) (((Pessoa) pessoas.get(j)).getPeso() * FOODMAGICNUMBER * 30);
+									}
+									addConsumoAlimentacao(internalConsumoAlimentacao);
 								}
-								addConsumoAlimentacao(internalConsumoAlimentacao);
-							}
-						}
-					}
-					
-					//omp section
-					{
-						for(i = 0; i < size; i++){
-							//omp critical
-							{
-								familia = (Familia) familias.get(i);
-								List pessoas = familia.getIntegrantes();
-								int qntPessoas = pessoas.size();
-								for(int j = 0; j < qntPessoas; j++){
-									internalConsumoLuz += ((Pessoa) pessoas.get(j)).getRenda() * LIGHTMAGICNUMBER; 
-								}
-								addConsumoLuz(internalConsumoLuz);
 							}
 						}
 					}
@@ -101,7 +86,27 @@ public class Cidade_jomp {
 							//omp critical
 							{
 								Familia familiax = (Familia) familias.get(i);
-								addConsumoAgua(familiax.getIntegrantes().size() * AGUAPORDIA * 30);
+								if (familiax != null) {
+									List pessoas = familiax.getIntegrantes();
+									int qntPessoas = pessoas.size();
+									for(int j = 0; j < qntPessoas; j++){
+										internalConsumoLuz += ((Pessoa) pessoas.get(j)).getRenda() * LIGHTMAGICNUMBER; 
+									}
+									addConsumoLuz(internalConsumoLuz);
+								}
+							}
+						}
+					}
+					
+					//omp section
+					{
+						for(i = 0; i < size; i++){
+							//omp critical
+							{
+								Familia familiax = (Familia) familias.get(i);
+								if (familiax != null) {
+									addConsumoAgua(familiax.getIntegrantes().size() * AGUAPORDIA * 30);
+								}
 							}
 						}
 					}
@@ -152,7 +157,9 @@ public class Cidade_jomp {
 			//omp for
 			for ( i = 0; i < cresimentoPop; i++) {
 				Familia familiax = (Familia) familias.get(familyRandom.nextInt(familias.size()));
-				familiax.addNovoIntegrante();
+				if (familiax != null) {
+					familiax.addNovoIntegrante();
+				}
 			}
 		}
 	}
@@ -165,7 +172,10 @@ public class Cidade_jomp {
 		{
 			//omp for
 			for (i = 0; i < size; i++) {
-				tamPopulacao += ((Familia) familias.get(i)).getPeopleCount();
+				Familia familiax = (Familia) familias.get(i);
+				if (familiax != null) {
+					tamPopulacao += familiax.getPeopleCount();
+				}
 			}
 		}
 		return tamPopulacao;

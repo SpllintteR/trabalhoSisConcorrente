@@ -42,7 +42,8 @@ public class Cidade_jomp {
   try {
     jomp.runtime.OMP.doParallel(__omp_Object0);
   } catch(Throwable __omp_exception) {
-	  __omp_exception.printStackTrace();
+    System.err.println("OMP Warning: Illegal thread exception ignored!");
+    System.err.println(__omp_exception);
   }
   // reduction variables
   // shared variables
@@ -69,7 +70,6 @@ public class Cidade_jomp {
 				consumoLuz = 0;
 				int i = 0;
 				int size = familias.size();
-				Familia familia;
 				int internalConsumoLuz  = 0;
 				long internalConsumoAlimentacao = 0;
 
@@ -84,11 +84,11 @@ public class Cidade_jomp {
   try {
     jomp.runtime.OMP.doParallel(__omp_Object1);
   } catch(Throwable __omp_exception) {
-	  __omp_exception.printStackTrace();
+    System.err.println("OMP Warning: Illegal thread exception ignored!");
+    System.err.println(__omp_exception);
   }
   // reduction variables
   // shared variables
-  familia = __omp_Object1.familia;
   size = __omp_Object1.size;
   intervalo = __omp_Object1.intervalo;
   quantMeses = __omp_Object1.quantMeses;
@@ -150,7 +150,8 @@ public class Cidade_jomp {
   try {
     jomp.runtime.OMP.doParallel(__omp_Object3);
   } catch(Throwable __omp_exception) {
-	  __omp_exception.printStackTrace();
+    System.err.println("OMP Warning: Illegal thread exception ignored!");
+    System.err.println(__omp_exception);
   }
   // reduction variables
   // shared variables
@@ -181,7 +182,8 @@ public class Cidade_jomp {
   try {
     jomp.runtime.OMP.doParallel(__omp_Object7);
   } catch(Throwable __omp_exception) {
-	  __omp_exception.printStackTrace();
+    System.err.println("OMP Warning: Illegal thread exception ignored!");
+    System.err.println(__omp_exception);
   }
   // reduction variables
   tamPopulacao  += __omp_Object7._rd_tamPopulacao;
@@ -243,7 +245,10 @@ private class __omp_Class7 extends jomp.runtime.BusyTask {
                              for(int i = (int)__omp_ChunkData8.start; i < __omp_ChunkData8.stop; i += __omp_ChunkData8.step) {
                                // OMP USER CODE BEGINS
  {
-				tamPopulacao += ((Familia) familias.get(i)).getPeopleCount();
+				Familia familiax = (Familia) familias.get(i);
+				if (familiax != null) {
+					tamPopulacao += familiax.getPeopleCount();
+				}
 			}
                                // OMP USER CODE ENDS
                                if (i == (__omp_WholeData9.stop-1)) amLast = true;
@@ -329,7 +334,9 @@ private class __omp_Class3 extends jomp.runtime.BusyTask {
                                // OMP USER CODE BEGINS
  {
 				Familia familiax = (Familia) familias.get(familyRandom.nextInt(familias.size()));
-				familiax.addNovoIntegrante();
+				if (familiax != null) {
+					familiax.addNovoIntegrante();
+				}
 			}
                                // OMP USER CODE ENDS
                                if (i == (__omp_WholeData5.stop-1)) amLast = true;
@@ -369,7 +376,6 @@ private class __omp_Class3 extends jomp.runtime.BusyTask {
 // OMP PARALLEL REGION INNER CLASS DEFINITION BEGINS
 private class __omp_Class1 extends jomp.runtime.BusyTask {
   // shared variables
-  Familia familia;
   int size;
   long intervalo;
   int quantMeses;
@@ -409,12 +415,14 @@ private class __omp_Class1 extends jomp.runtime.BusyTask {
 
 							{
 								Familia familiax = (Familia) familias.get(i);
-								List pessoas = familiax.getIntegrantes();
-								int qntPessoas = pessoas.size();
-								for(int j = 0; j < qntPessoas; j++){
-									internalConsumoAlimentacao += (long) (((Pessoa) pessoas.get(j)).getPeso() * FOODMAGICNUMBER * 30);
+								if (familiax != null) {
+									List pessoas = familiax.getIntegrantes();
+									int qntPessoas = pessoas.size();
+									for(int j = 0; j < qntPessoas; j++){
+										internalConsumoAlimentacao += (long) (((Pessoa) pessoas.get(j)).getPeso() * FOODMAGICNUMBER * 30);
+									}
+									addConsumoAlimentacao(internalConsumoAlimentacao);
 								}
-								addConsumoAlimentacao(internalConsumoAlimentacao);
 							}
                                                          // OMP USER CODE ENDS
                                                          }
@@ -436,13 +444,15 @@ private class __omp_Class1 extends jomp.runtime.BusyTask {
                                                          // OMP USER CODE BEGINS
 
 							{
-								familia = (Familia) familias.get(i);
-								List pessoas = familia.getIntegrantes();
-								int qntPessoas = pessoas.size();
-								for(int j = 0; j < qntPessoas; j++){
-									internalConsumoLuz += ((Pessoa) pessoas.get(j)).getRenda() * LIGHTMAGICNUMBER; 
+								Familia familiax = (Familia) familias.get(i);
+								if (familiax != null) {
+									List pessoas = familiax.getIntegrantes();
+									int qntPessoas = pessoas.size();
+									for(int j = 0; j < qntPessoas; j++){
+										internalConsumoLuz += ((Pessoa) pessoas.get(j)).getRenda() * LIGHTMAGICNUMBER; 
+									}
+									addConsumoLuz(internalConsumoLuz);
 								}
-								addConsumoLuz(internalConsumoLuz);
 							}
                                                          // OMP USER CODE ENDS
                                                          }
@@ -465,7 +475,9 @@ private class __omp_Class1 extends jomp.runtime.BusyTask {
 
 							{
 								Familia familiax = (Familia) familias.get(i);
-								addConsumoAgua(familiax.getIntegrantes().size() * AGUAPORDIA * 30);
+								if (familiax != null) {
+									addConsumoAgua(familiax.getIntegrantes().size() * AGUAPORDIA * 30);
+								}
 							}
                                                          // OMP USER CODE ENDS
                                                          }
