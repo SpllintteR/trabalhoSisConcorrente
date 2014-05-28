@@ -1,10 +1,8 @@
 package pkg;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import jomp.runtime.OMP;
 import BaseDados.FamiliasManager;
 
 public class Cidade {
@@ -13,32 +11,15 @@ public class Cidade {
 	private StringBuilder estastistica = new StringBuilder();
 	public long intervalo;
 	public int quantMeses;
-	private List familias;
+	private Familia[] familias;
 	private long consumoAgua;
 	private long consumoAlimentacao;
 	private long consumoLuz;
-	private int length;
-	private Familia[] loadFamilys;
-	private Familia familia;
 	
 	public Cidade(int quantMeses, long intervalo) {
-		familias = new ArrayList();
+		familias = FamiliasManager.loadFamilys();
 		this.quantMeses = quantMeses;
 		this.intervalo = intervalo;
-		loadFamilys = FamiliasManager.loadFamilys();
-		int i = 0;
-		length = loadFamilys.length;
-		
-		OMP.setNumThreads(length);
-		//omp parallel private(i)
-		{
-			for(i = 0; i < length; i++){
-				familia = loadFamilys[i];
-				if (familia != null) {
-					familias.add(familia);
-				}
-			}
-		}
 	}
 
 	public Cidade() {
@@ -56,7 +37,7 @@ public class Cidade {
 				consumoAlimentacao = 0;
 				consumoLuz = 0;
 				int i = 0;
-				int size = familias.size();
+				int size = familias.length;
 				int internalConsumoLuz  = 0;
 				long internalConsumoAlimentacao = 0;
 				
@@ -67,7 +48,7 @@ public class Cidade {
 						for(i = 0; i < size; i++){
 							//omp critical
 							{
-								Familia familiax = (Familia) familias.get(i);
+								Familia familiax = (Familia) familias[i];
 								if (familiax != null) {
 									List pessoas = familiax.getIntegrantes();
 									int qntPessoas = pessoas.size();
@@ -85,7 +66,7 @@ public class Cidade {
 						for(i = 0; i < size; i++){
 							//omp critical
 							{
-								Familia familiax = (Familia) familias.get(i);
+								Familia familiax = (Familia) familias[i];
 								if (familiax != null) {
 									List pessoas = familiax.getIntegrantes();
 									int qntPessoas = pessoas.size();
@@ -103,7 +84,7 @@ public class Cidade {
 						for(i = 0; i < size; i++){
 							//omp critical
 							{
-								Familia familiax = (Familia) familias.get(i);
+								Familia familiax = (Familia) familias[i];
 								if (familiax != null) {
 									addConsumoAgua(familiax.getIntegrantes().size() * AGUAPORDIA * 30);
 								}
@@ -156,7 +137,7 @@ public class Cidade {
 		{
 			//omp for
 			for ( i = 0; i < cresimentoPop; i++) {
-				Familia familiax = (Familia) familias.get(familyRandom.nextInt(familias.size()));
+				Familia familiax = (Familia) familias[familyRandom.nextInt(familias.length)];
 				if (familiax != null) {
 					familiax.addNovoIntegrante();
 				}
@@ -166,13 +147,13 @@ public class Cidade {
 
 	public int getTamanhoPopulacao() {
 		int i = 0;
-		int size = familias.size();
+		int size = familias.length;
 		int tamPopulacao = 0;
 		//omp parallel reduction(+:tamPopulacao)
 		{
 			//omp for
 			for (i = 0; i < size; i++) {
-				Familia familiax = (Familia) familias.get(i);
+				Familia familiax = (Familia) familias[i];
 				if (familiax != null) {
 					tamPopulacao += familiax.getPeopleCount();
 				}

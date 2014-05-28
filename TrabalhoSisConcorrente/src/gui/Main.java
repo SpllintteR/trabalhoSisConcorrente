@@ -2,7 +2,6 @@ package gui;
 
 import java.util.Scanner;
 
-import pkg.Cidade;
 import pkg.Cidade_jomp;
 
 public class Main {
