@@ -120,7 +120,6 @@ public class Cidade {
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
-//		System.out.println(estastistica.toString());
 	}
 
 	private void mortalidade() {
