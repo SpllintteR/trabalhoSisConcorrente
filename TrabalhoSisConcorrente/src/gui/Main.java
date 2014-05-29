@@ -11,9 +11,7 @@ public class Main {
 		try {
 				System.out.print("Digite a quantidade de meses a serem simulados: ");
 				int quantMeses = Integer.parseInt(scan.nextLine());
-				System.out.print("Digite o valor do intervalo (ms) entre cada mês: ");
-				long intervalo = Integer.parseInt(scan.nextLine());
-				Cidade_jomp cidade = new Cidade_jomp(quantMeses, intervalo);
+				Cidade_jomp cidade = new Cidade_jomp(quantMeses);
 				cidade.execute();
 		} catch (Exception ex) {
 			ex.printStackTrace();

@@ -3,94 +3,115 @@ package pkg;
 import java.util.List;
 import java.util.Random;
 
+import jomp.runtime.OMP;
 import BaseDados.FamiliasManager;
 
 public class Cidade_jomp {
-	
-	private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+
+	private static final String LINE_SEPARATOR = System
+			.getProperty("line.separator");
 	private StringBuilder estastistica = new StringBuilder();
-	public long intervalo;
 	public int quantMeses;
 	private Familia[] familias;
 	private long consumoAgua;
 	private long consumoAlimentacao;
 	private long consumoLuz;
-	
-	public Cidade_jomp(int quantMeses, long intervalo) {
+
+	public Cidade_jomp(int quantMeses) {
 		familias = FamiliasManager.loadFamilys();
 		this.quantMeses = quantMeses;
-		this.intervalo = intervalo;
 	}
 
 	public Cidade_jomp() {
-		this(10, 1000);
+		this(10);
 	}
 
 	private static int AGUAPORDIA = 2;
 	private static double FOODMAGICNUMBER = 0.0255;
 	private static double LIGHTMAGICNUMBER = 0.04;
-	
+
 	public void execute() {
 		try {
+			estastistica.append("Tamanho");
+			estastistica.append("\t\t");
+			estastistica.append("Agua");
+			estastistica.append("\t\t");
+			estastistica.append("Luz");
+			estastistica.append("\t\t");
+			estastistica.append("Alimento");
+			estastistica.append(LINE_SEPARATOR);
+			int mortalidadeMes = 3;
 			while (quantMeses > 0) {
 				consumoAgua = 0;
 				consumoAlimentacao = 0;
 				consumoLuz = 0;
 				int i = 0;
 				int size = familias.length;
-				int internalConsumoLuz  = 0;
+				int internalConsumoLuz = 0;
 				long internalConsumoAlimentacao = 0;
-				
-				//omp parallel sections private(i,internalConsumoLuz,internalConsumoAlimentacao)
+
+				// omp parallel sections
+				// private(i,internalConsumoLuz,internalConsumoAlimentacao)
 				{
-					//omp section
+					// omp section
 					{
-						for(i = 0; i < size; i++){
-							//omp critical
+						for (i = 0; i < size; i++) {
+							// omp critical
 							{
 								Familia familiax = (Familia) familias[i];
 								if (familiax != null) {
 									List pessoas = familiax.getIntegrantes();
 									int qntPessoas = pessoas.size();
-									for(int j = 0; j < qntPessoas; j++){
-										internalConsumoAlimentacao += (long) (((Pessoa) pessoas.get(j)).getPeso() * FOODMAGICNUMBER * 30);
+									for (int j = 0; j < qntPessoas; j++) {
+										internalConsumoAlimentacao += (long) (((Pessoa) pessoas
+												.get(j)).getPeso()
+												* FOODMAGICNUMBER * 30);
 									}
 									addConsumoAlimentacao(internalConsumoAlimentacao);
 								}
 							}
 						}
 					}
-					
-					//omp section
+
+					// omp section
 					{
-						for(i = 0; i < size; i++){
-							//omp critical
+						for (i = 0; i < size; i++) {
+							// omp critical
 							{
 								Familia familiax = (Familia) familias[i];
 								if (familiax != null) {
 									List pessoas = familiax.getIntegrantes();
 									int qntPessoas = pessoas.size();
-									for(int j = 0; j < qntPessoas; j++){
-										internalConsumoLuz += ((Pessoa) pessoas.get(j)).getRenda() * LIGHTMAGICNUMBER; 
+									for (int j = 0; j < qntPessoas; j++) {
+										internalConsumoLuz += ((Pessoa) pessoas
+												.get(j)).getRenda()
+												* LIGHTMAGICNUMBER;
 									}
 									addConsumoLuz(internalConsumoLuz);
 								}
 							}
 						}
 					}
-					
-					//omp section
+
+					// omp section
 					{
-						for(i = 0; i < size; i++){
-							//omp critical
+						for (i = 0; i < size; i++) {
+							// omp critical
 							{
 								Familia familiax = (Familia) familias[i];
 								if (familiax != null) {
-									addConsumoAgua(familiax.getIntegrantes().size() * AGUAPORDIA * 30);
+									addConsumoAgua(familiax.getIntegrantes()
+											.size() * AGUAPORDIA * 30);
 								}
 							}
 						}
 					}
+				}
+				if (mortalidadeMes == 0){
+					mortalidade();
+					mortalidadeMes = 3;
+				}else{
+					mortalidadeMes--;
 				}
 				quantMeses--;
 				showStatus();
@@ -98,10 +119,29 @@ public class Cidade_jomp {
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();
- 		}
-		System.out.println(estastistica.toString());
+		}
+//		System.out.println(estastistica.toString());
 	}
-	
+
+	private void mortalidade() {
+		Random random = new Random();
+		int tamanhaPopulacao = getTamanhoPopulacao();
+		int quantMortes = 0;
+		while (quantMortes == 0) {
+			quantMortes = random.nextInt((int) (tamanhaPopulacao * 0.05));
+		}
+		int i;
+		OMP.setNumThreads(quantMortes);
+		// omp parallel private(i)
+		for (i = 0; i < quantMortes; i++){
+			boolean matou = false;
+			while (!matou) {
+				int quantFamilias = random.nextInt(familias.length);
+				matou = familias[quantFamilias].matarPessoa();
+			}
+		}
+	}
+
 	private void showStatus() {
 		estastistica.append(getTamanhoPopulacao());
 		estastistica.append("\t\t");
@@ -110,7 +150,8 @@ public class Cidade_jomp {
 		estastistica.append(consumoLuz);
 		estastistica.append("\t\t");
 		estastistica.append(consumoAlimentacao);
-		estastistica.append(LINE_SEPARATOR);
+		System.out.println(estastistica.toString());
+		estastistica = new StringBuilder();
 	}
 
 	public void addConsumoAgua(final long consumoAgua) {
@@ -124,7 +165,7 @@ public class Cidade_jomp {
 	public void addConsumoLuz(final long consumoLuz) {
 		this.consumoLuz += consumoLuz;
 	}
-	
+
 	public void addPopulacao() {
 		int cresimentoPop = (int) (getTamanhoPopulacao() * 0.03);
 		if (cresimentoPop == 0) {
@@ -133,11 +174,12 @@ public class Cidade_jomp {
 		Random familyRandom = new Random();
 
 		int i = 0;
-		//omp parallel
+		// omp parallel
 		{
-			//omp for
-			for ( i = 0; i < cresimentoPop; i++) {
-				Familia familiax = (Familia) familias[familyRandom.nextInt(familias.length)];
+			// omp for
+			for (i = 0; i < cresimentoPop; i++) {
+				Familia familiax = (Familia) familias[familyRandom
+						.nextInt(familias.length)];
 				if (familiax != null) {
 					familiax.addNovoIntegrante();
 				}
@@ -149,9 +191,9 @@ public class Cidade_jomp {
 		int i = 0;
 		int size = familias.length;
 		int tamPopulacao = 0;
-		//omp parallel reduction(+:tamPopulacao)
+		// omp parallel reduction(+:tamPopulacao)
 		{
-			//omp for
+			// omp for
 			for (i = 0; i < size; i++) {
 				Familia familiax = (Familia) familias[i];
 				if (familiax != null) {
