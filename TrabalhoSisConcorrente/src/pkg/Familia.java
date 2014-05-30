@@ -15,7 +15,6 @@ public class Familia implements Serializable {
 	}
 	
 	public void addPessoa(final Pessoa pessoa) {
-		if (pessoa == null) { throw new RuntimeException("Para tudo essa porra"); }
 		integrantes.add(pessoa);
 	}
 	
