@@ -8,16 +8,17 @@ import java.util.Random;
 public class Familia implements Serializable {
 	
 	private static final long	serialVersionUID	= -5070026948247923813L;
-	private final List<Pessoa> integrantes = new ArrayList<>();
+	private final List<Pessoa>	integrantes			= new ArrayList<>();
 	
 	public int getPeopleCount() {
 		return integrantes.size();
 	}
-
+	
 	public void addPessoa(final Pessoa pessoa) {
+		if (pessoa == null) { throw new RuntimeException("Para tudo essa porra"); }
 		integrantes.add(pessoa);
 	}
-
+	
 	public void addNovoIntegrante() {
 		int mediaEscolaridade = 0;
 		double mediaRenda = 0;
@@ -49,11 +50,9 @@ public class Familia implements Serializable {
 	public List<Pessoa> getIntegrantes() {
 		return integrantes;
 	}
-
+	
 	public boolean matarPessoa() {
-		if(integrantes.size() == 0){
-			return false;
-		}
+		if (integrantes.size() == 0) { return false; }
 		integrantes.remove(0);
 		return true;
 	}

@@ -6,29 +6,29 @@ import jomp.runtime.OMP;
 import BaseDados.FamiliasManager;
 
 public class Cidade {
-
-	private static final String LINE_SEPARATOR = System
-			.getProperty("line.separator");
-	private StringBuilder estastistica = new StringBuilder();
-	public int quantMeses;
-	private Familia[] familias;
-	private long consumoAgua;
-	private long consumoAlimentacao;
-	private long consumoLuz;
-
-	public Cidade(int quantMeses) {
+	
+	private static final String	LINE_SEPARATOR	= System
+														.getProperty("line.separator");
+	private StringBuilder		estastistica	= new StringBuilder();
+	public int					quantMeses;
+	private final Familia[]		familias;
+	private long				consumoAgua;
+	private long				consumoAlimentacao;
+	private long				consumoLuz;
+	
+	public Cidade(final int quantMeses) {
 		familias = FamiliasManager.loadFamilys();
 		this.quantMeses = quantMeses;
 	}
-
+	
 	public Cidade() {
 		this(10);
 	}
-
-	private static int AGUAPORDIA = 2;
-	private static double FOODMAGICNUMBER = 0.0255;
-	private static double LIGHTMAGICNUMBER = 0.04;
-
+	
+	private static int		AGUAPORDIA			= 2;
+	private static double	FOODMAGICNUMBER		= 0.0255;
+	private static double	LIGHTMAGICNUMBER	= 0.04;
+	
 	public void execute() {
 		try {
 			estastistica.append("Tamanho");
@@ -49,55 +49,59 @@ public class Cidade {
 				int size = familias.length;
 				int internalConsumoLuz = 0;
 				long internalConsumoAlimentacao = 0;
-
-				//omp parallel sections private(i,internalConsumoLuz,internalConsumoAlimentacao)
+				
+				//omp parallel sections
+				//private(i,internalConsumoLuz,internalConsumoAlimentacao)
 				{
 					//omp section
 					{
 						for (i = 0; i < size; i++) {
 							//omp critical
 							{
-								Familia familiax = (Familia) familias[i];
+								Familia familiax = familias[i];
 								if (familiax != null) {
 									Object[] pessoas = familiax.getIntegrantes().toArray();
 									int qntPessoas = pessoas.length;
 									for (int j = 0; j < qntPessoas; j++) {
-										internalConsumoAlimentacao += (long) (((Pessoa) pessoas[j]
-												).getPeso()
-												* FOODMAGICNUMBER * 30);
+										Pessoa pessoa = (Pessoa) pessoas[j];
+										if (pessoa != null) {
+											internalConsumoAlimentacao += (long) (pessoa.getPeso()
+													* FOODMAGICNUMBER * 30);
+										}
 									}
 									addConsumoAlimentacao(internalConsumoAlimentacao);
 								}
 							}
 						}
 					}
-
+					
 					//omp section
 					{
 						for (i = 0; i < size; i++) {
 							//omp critical
 							{
-								Familia familiax = (Familia) familias[i];
+								Familia familiax = familias[i];
 								if (familiax != null) {
 									Object[] pessoas = familiax.getIntegrantes().toArray();
 									int qntPessoas = pessoas.length;
 									for (int j = 0; j < qntPessoas; j++) {
-										internalConsumoLuz += ((Pessoa) pessoas[j]
-												).getRenda()
-												* LIGHTMAGICNUMBER;
+										Pessoa pessoa = (Pessoa) pessoas[j];
+										if (pessoa != null){
+											internalConsumoLuz += pessoa.getRenda() * LIGHTMAGICNUMBER;
+										}
 									}
 									addConsumoLuz(internalConsumoLuz);
 								}
 							}
 						}
 					}
-
+					
 					//omp section
 					{
 						for (i = 0; i < size; i++) {
 							//omp critical
 							{
-								Familia familiax = (Familia) familias[i];
+								Familia familiax = familias[i];
 								if (familiax != null) {
 									addConsumoAgua(familiax.getIntegrantes()
 											.size() * AGUAPORDIA * 30);
@@ -106,10 +110,10 @@ public class Cidade {
 						}
 					}
 				}
-				if (mortalidadeMes == 0){
+				if (mortalidadeMes == 0) {
 					mortalidade();
 					mortalidadeMes = 6;
-				}else{
+				} else {
 					mortalidadeMes--;
 				}
 				quantMeses--;
@@ -120,7 +124,7 @@ public class Cidade {
 			e.printStackTrace();
 		}
 	}
-
+	
 	private void mortalidade() {
 		Random random = new Random();
 		int tamanhaPopulacao = getTamanhoPopulacao();
@@ -131,7 +135,7 @@ public class Cidade {
 		int i;
 		//omp parallel private(i)
 		{
-			for (i = 0; i < quantMortes; i++){
+			for (i = 0; i < quantMortes; i++) {
 				boolean matou = false;
 				while (!matou) {
 					//omp critical
@@ -143,7 +147,7 @@ public class Cidade {
 			}
 		}
 	}
-
+	
 	private void showStatus() {
 		estastistica.append(getTamanhoPopulacao());
 		estastistica.append("\t\t");
@@ -155,32 +159,32 @@ public class Cidade {
 		System.out.println(estastistica.toString());
 		estastistica = new StringBuilder();
 	}
-
+	
 	public void addConsumoAgua(final long consumoAgua) {
 		this.consumoAgua += consumoAgua;
 	}
-
+	
 	public void addConsumoAlimentacao(final long consumoAlimentos) {
 		consumoAlimentacao += consumoAlimentos;
 	}
-
+	
 	public void addConsumoLuz(final long consumoLuz) {
 		this.consumoLuz += consumoLuz;
 	}
-
+	
 	public void addPopulacao() {
 		int cresimentoPop = (int) (getTamanhoPopulacao() * 0.03);
 		if (cresimentoPop == 0) {
 			cresimentoPop = 1;
 		}
 		Random familyRandom = new Random();
-
+		
 		int i = 0;
 		//omp parallel
 		{
 			//omp for
 			for (i = 0; i < cresimentoPop; i++) {
-				Familia familiax = (Familia) familias[familyRandom
+				Familia familiax = familias[familyRandom
 						.nextInt(familias.length)];
 				if (familiax != null) {
 					familiax.addNovoIntegrante();
@@ -188,7 +192,7 @@ public class Cidade {
 			}
 		}
 	}
-
+	
 	public int getTamanhoPopulacao() {
 		int i = 0;
 		int size = familias.length;
@@ -197,7 +201,7 @@ public class Cidade {
 		{
 			//omp for
 			for (i = 0; i < size; i++) {
-				Familia familiax = (Familia) familias[i];
+				Familia familiax = familias[i];
 				if (familiax != null) {
 					tamPopulacao += familiax.getPeopleCount();
 				}
@@ -205,5 +209,5 @@ public class Cidade {
 		}
 		return tamPopulacao;
 	}
-
+	
 }
