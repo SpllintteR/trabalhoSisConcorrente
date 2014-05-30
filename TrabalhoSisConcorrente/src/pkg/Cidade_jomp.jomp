@@ -50,8 +50,7 @@ public class Cidade_jomp {
 				int internalConsumoLuz = 0;
 				long internalConsumoAlimentacao = 0;
 				
-				//omp parallel sections
-				//private(i,internalConsumoLuz,internalConsumoAlimentacao)
+				//omp parallel sections //private(i,internalConsumoLuz,internalConsumoAlimentacao)
 				{
 					//omp section
 					{

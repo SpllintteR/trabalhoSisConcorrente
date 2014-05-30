@@ -66,8 +66,7 @@ public class Cidade_jomp {
     jomp.runtime.OMP.doParallel(__omp_Object0);
   } catch(Throwable __omp_exception) {
     System.err.println("OMP Warning: Illegal thread exception ignored!");
-    __omp_exception.printStackTrace();
-    __omp_exception.printStackTrace();
+    System.err.println(__omp_exception);
   }
   // reduction variables
   // shared variables
@@ -117,7 +116,7 @@ public class Cidade_jomp {
     jomp.runtime.OMP.doParallel(__omp_Object2);
   } catch(Throwable __omp_exception) {
     System.err.println("OMP Warning: Illegal thread exception ignored!");
-    __omp_exception.printStackTrace();
+    System.err.println(__omp_exception);
   }
   // reduction variables
   // shared variables
@@ -176,7 +175,7 @@ public class Cidade_jomp {
     jomp.runtime.OMP.doParallel(__omp_Object3);
   } catch(Throwable __omp_exception) {
     System.err.println("OMP Warning: Illegal thread exception ignored!");
-    __omp_exception.printStackTrace();
+    System.err.println(__omp_exception);
   }
   // reduction variables
   // shared variables
@@ -206,7 +205,7 @@ public class Cidade_jomp {
     jomp.runtime.OMP.doParallel(__omp_Object7);
   } catch(Throwable __omp_exception) {
     System.err.println("OMP Warning: Illegal thread exception ignored!");
-    __omp_exception.printStackTrace();
+    System.err.println(__omp_exception);
   }
   // reduction variables
   tamPopulacao  += __omp_Object7._rd_tamPopulacao;
