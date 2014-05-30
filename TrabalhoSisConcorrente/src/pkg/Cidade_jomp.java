@@ -1,6 +1,5 @@
 package pkg;
 
-import java.util.List;
 import java.util.Random;
 
 import jomp.runtime.OMP;
@@ -41,7 +40,8 @@ public class Cidade_jomp {
 			estastistica.append("\t\t");
 			estastistica.append("Alimento");
 			estastistica.append(LINE_SEPARATOR);
-			int mortalidadeMes = 3;
+			int mortalidadeMes = 6;
+			OMP.setNumThreads(6);
 			while (quantMeses > 0) {
 				consumoAgua = 0;
 				consumoAlimentacao = 0;
@@ -51,66 +51,31 @@ public class Cidade_jomp {
 				int internalConsumoLuz = 0;
 				long internalConsumoAlimentacao = 0;
 
-				// omp parallel sections
-				// private(i,internalConsumoLuz,internalConsumoAlimentacao)
-				{
-					// omp section
-					{
-						for (i = 0; i < size; i++) {
-							// omp critical
-							{
-								Familia familiax = (Familia) familias[i];
-								if (familiax != null) {
-									List pessoas = familiax.getIntegrantes();
-									int qntPessoas = pessoas.size();
-									for (int j = 0; j < qntPessoas; j++) {
-										internalConsumoAlimentacao += (long) (((Pessoa) pessoas
-												.get(j)).getPeso()
-												* FOODMAGICNUMBER * 30);
-									}
-									addConsumoAlimentacao(internalConsumoAlimentacao);
-								}
-							}
-						}
-					}
+// OMP PARALLEL BLOCK BEGINS
+{
+  __omp_Class0 __omp_Object0 = new __omp_Class0();
+  // shared variables
+  __omp_Object0.size = size;
+  __omp_Object0.mortalidadeMes = mortalidadeMes;
+  __omp_Object0.quantMeses = quantMeses;
+  // firstprivate variables
+  try {
+    jomp.runtime.OMP.doParallel(__omp_Object0);
+  } catch(Throwable __omp_exception) {
+    System.err.println("OMP Warning: Illegal thread exception ignored!");
+    System.err.println(__omp_exception);
+  }
+  // reduction variables
+  // shared variables
+  size = __omp_Object0.size;
+  mortalidadeMes = __omp_Object0.mortalidadeMes;
+  quantMeses = __omp_Object0.quantMeses;
+}
+// OMP PARALLEL BLOCK ENDS
 
-					// omp section
-					{
-						for (i = 0; i < size; i++) {
-							// omp critical
-							{
-								Familia familiax = (Familia) familias[i];
-								if (familiax != null) {
-									List pessoas = familiax.getIntegrantes();
-									int qntPessoas = pessoas.size();
-									for (int j = 0; j < qntPessoas; j++) {
-										internalConsumoLuz += ((Pessoa) pessoas
-												.get(j)).getRenda()
-												* LIGHTMAGICNUMBER;
-									}
-									addConsumoLuz(internalConsumoLuz);
-								}
-							}
-						}
-					}
-
-					// omp section
-					{
-						for (i = 0; i < size; i++) {
-							// omp critical
-							{
-								Familia familiax = (Familia) familias[i];
-								if (familiax != null) {
-									addConsumoAgua(familiax.getIntegrantes()
-											.size() * AGUAPORDIA * 30);
-								}
-							}
-						}
-					}
-				}
 				if (mortalidadeMes == 0){
 					mortalidade();
-					mortalidadeMes = 3;
+					mortalidadeMes = 6;
 				}else{
 					mortalidadeMes--;
 				}
@@ -121,7 +86,6 @@ public class Cidade_jomp {
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
-//		System.out.println(estastistica.toString());
 	}
 
 	private void mortalidade() {
@@ -132,15 +96,31 @@ public class Cidade_jomp {
 			quantMortes = random.nextInt((int) (tamanhaPopulacao * 0.05));
 		}
 		int i;
-		OMP.setNumThreads(quantMortes);
-		// omp parallel private(i)
-		for (i = 0; i < quantMortes; i++){
-			boolean matou = false;
-			while (!matou) {
-				int quantFamilias = random.nextInt(familias.length);
-				matou = familias[quantFamilias].matarPessoa();
-			}
-		}
+
+// OMP PARALLEL BLOCK BEGINS
+{
+  __omp_Class2 __omp_Object2 = new __omp_Class2();
+  // shared variables
+  __omp_Object2.quantMortes = quantMortes;
+  __omp_Object2.tamanhaPopulacao = tamanhaPopulacao;
+  __omp_Object2.random = random;
+  __omp_Object2.quantMeses = quantMeses;
+  // firstprivate variables
+  try {
+    jomp.runtime.OMP.doParallel(__omp_Object2);
+  } catch(Throwable __omp_exception) {
+    System.err.println("OMP Warning: Illegal thread exception ignored!");
+    System.err.println(__omp_exception);
+  }
+  // reduction variables
+  // shared variables
+  quantMortes = __omp_Object2.quantMortes;
+  tamanhaPopulacao = __omp_Object2.tamanhaPopulacao;
+  random = __omp_Object2.random;
+  quantMeses = __omp_Object2.quantMeses;
+}
+// OMP PARALLEL BLOCK ENDS
+
 	}
 
 	private void showStatus() {
@@ -175,33 +155,433 @@ public class Cidade_jomp {
 		Random familyRandom = new Random();
 
 		int i = 0;
-		// omp parallel
-		{
-			// omp for
-			for (i = 0; i < cresimentoPop; i++) {
-				Familia familiax = (Familia) familias[familyRandom
-						.nextInt(familias.length)];
-				if (familiax != null) {
-					familiax.addNovoIntegrante();
-				}
-			}
-		}
+
+// OMP PARALLEL BLOCK BEGINS
+{
+  __omp_Class3 __omp_Object3 = new __omp_Class3();
+  // shared variables
+  __omp_Object3.i = i;
+  __omp_Object3.familyRandom = familyRandom;
+  __omp_Object3.cresimentoPop = cresimentoPop;
+  __omp_Object3.quantMeses = quantMeses;
+  // firstprivate variables
+  try {
+    jomp.runtime.OMP.doParallel(__omp_Object3);
+  } catch(Throwable __omp_exception) {
+    System.err.println("OMP Warning: Illegal thread exception ignored!");
+    System.err.println(__omp_exception);
+  }
+  // reduction variables
+  // shared variables
+  i = __omp_Object3.i;
+  familyRandom = __omp_Object3.familyRandom;
+  cresimentoPop = __omp_Object3.cresimentoPop;
+  quantMeses = __omp_Object3.quantMeses;
+}
+// OMP PARALLEL BLOCK ENDS
+
 	}
 
 	public int getTamanhoPopulacao() {
 		int i = 0;
 		int size = familias.length;
 		int tamPopulacao = 0;
-		// omp parallel reduction(+:tamPopulacao)
+
+// OMP PARALLEL BLOCK BEGINS
+{
+  __omp_Class7 __omp_Object7 = new __omp_Class7();
+  // shared variables
+  __omp_Object7.size = size;
+  __omp_Object7.i = i;
+  __omp_Object7.quantMeses = quantMeses;
+  // firstprivate variables
+  try {
+    jomp.runtime.OMP.doParallel(__omp_Object7);
+  } catch(Throwable __omp_exception) {
+    System.err.println("OMP Warning: Illegal thread exception ignored!");
+    System.err.println(__omp_exception);
+  }
+  // reduction variables
+  tamPopulacao  += __omp_Object7._rd_tamPopulacao;
+  // shared variables
+  size = __omp_Object7.size;
+  i = __omp_Object7.i;
+  quantMeses = __omp_Object7.quantMeses;
+}
+// OMP PARALLEL BLOCK ENDS
+
+		return tamPopulacao;
+	}
+
+// OMP PARALLEL REGION INNER CLASS DEFINITION BEGINS
+private class __omp_Class7 extends jomp.runtime.BusyTask {
+  // shared variables
+  int size;
+  int i;
+  int quantMeses;
+  // firstprivate variables
+  // variables to hold results of reduction
+  int _rd_tamPopulacao;
+
+  public void go(int __omp_me) throws Throwable {
+  // firstprivate variables + init
+  // private variables
+  // reduction variables, init to default
+  int tamPopulacao = 0;
+    // OMP USER CODE BEGINS
+
 		{
-			// omp for
-			for (i = 0; i < size; i++) {
+                         { // OMP FOR BLOCK BEGINS
+                         // copy of firstprivate variables, initialized
+                         // copy of lastprivate variables
+                         // variables to hold result of reduction
+                         boolean amLast=false;
+                         {
+                           // firstprivate variables + init
+                           // [last]private variables
+                           // reduction variables + init to default
+                           // -------------------------------------
+                           jomp.runtime.LoopData __omp_WholeData9 = new jomp.runtime.LoopData();
+                           jomp.runtime.LoopData __omp_ChunkData8 = new jomp.runtime.LoopData();
+                           __omp_WholeData9.start = (long)( 0);
+                           __omp_WholeData9.stop = (long)( size);
+                           __omp_WholeData9.step = (long)(1);
+                           jomp.runtime.OMP.setChunkStatic(__omp_WholeData9);
+                           while(!__omp_ChunkData8.isLast && jomp.runtime.OMP.getLoopStatic(__omp_me, __omp_WholeData9, __omp_ChunkData8)) {
+                           for(;;) {
+                             if(__omp_WholeData9.step > 0) {
+                                if(__omp_ChunkData8.stop > __omp_WholeData9.stop) __omp_ChunkData8.stop = __omp_WholeData9.stop;
+                                if(__omp_ChunkData8.start >= __omp_WholeData9.stop) break;
+                             } else {
+                                if(__omp_ChunkData8.stop < __omp_WholeData9.stop) __omp_ChunkData8.stop = __omp_WholeData9.stop;
+                                if(__omp_ChunkData8.start > __omp_WholeData9.stop) break;
+                             }
+                             for(int i = (int)__omp_ChunkData8.start; i < __omp_ChunkData8.stop; i += __omp_ChunkData8.step) {
+                               // OMP USER CODE BEGINS
+ {
 				Familia familiax = (Familia) familias[i];
 				if (familiax != null) {
 					tamPopulacao += familiax.getPeopleCount();
 				}
 			}
+                               // OMP USER CODE ENDS
+                               if (i == (__omp_WholeData9.stop-1)) amLast = true;
+                             } // of for 
+                             if(__omp_ChunkData8.startStep == 0)
+                               break;
+                             __omp_ChunkData8.start += __omp_ChunkData8.startStep;
+                             __omp_ChunkData8.stop += __omp_ChunkData8.startStep;
+                           } // of for(;;)
+                           } // of while
+                           // call reducer
+                           jomp.runtime.OMP.doBarrier(__omp_me);
+                           // copy lastprivate variables out
+                           if (amLast) {
+                           }
+                         }
+                         // set global from lastprivate variables
+                         if (amLast) {
+                         }
+                         // set global from reduction variables
+                         if (jomp.runtime.OMP.getThreadNum(__omp_me) == 0) {
+                         }
+                         } // OMP FOR BLOCK ENDS
+
 		}
-		return tamPopulacao;
-	}}
+    // OMP USER CODE ENDS
+  // call reducer
+  tamPopulacao = (int) jomp.runtime.OMP.doPlusReduce(__omp_me, tamPopulacao);
+  // output to _rd_ copy
+  if (jomp.runtime.OMP.getThreadNum(__omp_me) == 0) {
+    _rd_tamPopulacao = tamPopulacao;
+  }
+  }
+}
+// OMP PARALLEL REGION INNER CLASS DEFINITION ENDS
+
+
+
+// OMP PARALLEL REGION INNER CLASS DEFINITION BEGINS
+private class __omp_Class3 extends jomp.runtime.BusyTask {
+  // shared variables
+  int i;
+  Random familyRandom;
+  int cresimentoPop;
+  int quantMeses;
+  // firstprivate variables
+  // variables to hold results of reduction
+
+  public void go(int __omp_me) throws Throwable {
+  // firstprivate variables + init
+  // private variables
+  // reduction variables, init to default
+    // OMP USER CODE BEGINS
+
+		{
+                         { // OMP FOR BLOCK BEGINS
+                         // copy of firstprivate variables, initialized
+                         // copy of lastprivate variables
+                         // variables to hold result of reduction
+                         boolean amLast=false;
+                         {
+                           // firstprivate variables + init
+                           // [last]private variables
+                           // reduction variables + init to default
+                           // -------------------------------------
+                           jomp.runtime.LoopData __omp_WholeData5 = new jomp.runtime.LoopData();
+                           jomp.runtime.LoopData __omp_ChunkData4 = new jomp.runtime.LoopData();
+                           __omp_WholeData5.start = (long)( 0);
+                           __omp_WholeData5.stop = (long)( cresimentoPop);
+                           __omp_WholeData5.step = (long)(1);
+                           jomp.runtime.OMP.setChunkStatic(__omp_WholeData5);
+                           while(!__omp_ChunkData4.isLast && jomp.runtime.OMP.getLoopStatic(__omp_me, __omp_WholeData5, __omp_ChunkData4)) {
+                           for(;;) {
+                             if(__omp_WholeData5.step > 0) {
+                                if(__omp_ChunkData4.stop > __omp_WholeData5.stop) __omp_ChunkData4.stop = __omp_WholeData5.stop;
+                                if(__omp_ChunkData4.start >= __omp_WholeData5.stop) break;
+                             } else {
+                                if(__omp_ChunkData4.stop < __omp_WholeData5.stop) __omp_ChunkData4.stop = __omp_WholeData5.stop;
+                                if(__omp_ChunkData4.start > __omp_WholeData5.stop) break;
+                             }
+                             for(int i = (int)__omp_ChunkData4.start; i < __omp_ChunkData4.stop; i += __omp_ChunkData4.step) {
+                               // OMP USER CODE BEGINS
+ {
+				Familia familiax = (Familia) familias[familyRandom
+						.nextInt(familias.length)];
+				if (familiax != null) {
+					familiax.addNovoIntegrante();
+				}
+			}
+                               // OMP USER CODE ENDS
+                               if (i == (__omp_WholeData5.stop-1)) amLast = true;
+                             } // of for 
+                             if(__omp_ChunkData4.startStep == 0)
+                               break;
+                             __omp_ChunkData4.start += __omp_ChunkData4.startStep;
+                             __omp_ChunkData4.stop += __omp_ChunkData4.startStep;
+                           } // of for(;;)
+                           } // of while
+                           // call reducer
+                           jomp.runtime.OMP.doBarrier(__omp_me);
+                           // copy lastprivate variables out
+                           if (amLast) {
+                           }
+                         }
+                         // set global from lastprivate variables
+                         if (amLast) {
+                         }
+                         // set global from reduction variables
+                         if (jomp.runtime.OMP.getThreadNum(__omp_me) == 0) {
+                         }
+                         } // OMP FOR BLOCK ENDS
+
+		}
+    // OMP USER CODE ENDS
+  // call reducer
+  // output to _rd_ copy
+  if (jomp.runtime.OMP.getThreadNum(__omp_me) == 0) {
+  }
+  }
+}
+// OMP PARALLEL REGION INNER CLASS DEFINITION ENDS
+
+
+
+// OMP PARALLEL REGION INNER CLASS DEFINITION BEGINS
+private class __omp_Class2 extends jomp.runtime.BusyTask {
+  // shared variables
+  int quantMortes;
+  int tamanhaPopulacao;
+  Random random;
+  int quantMeses;
+  // firstprivate variables
+  // variables to hold results of reduction
+
+  public void go(int __omp_me) throws Throwable {
+  // firstprivate variables + init
+  // private variables
+  int i;
+  // reduction variables, init to default
+    // OMP USER CODE BEGINS
+
+		{
+			for (i = 0; i < quantMortes; i++){
+				boolean matou = false;
+				while (!matou) {
+                                         // OMP CRITICAL BLOCK BEGINS
+                                         synchronized (jomp.runtime.OMP.getLockByName("")) {
+                                         // OMP USER CODE BEGINS
+
+					{
+						int quantFamilias = random.nextInt(familias.length);
+						matou = familias[quantFamilias].matarPessoa();
+					}
+                                         // OMP USER CODE ENDS
+                                         }
+                                         // OMP CRITICAL BLOCK ENDS
+
+				}
+			}
+		}
+    // OMP USER CODE ENDS
+  // call reducer
+  // output to _rd_ copy
+  if (jomp.runtime.OMP.getThreadNum(__omp_me) == 0) {
+  }
+  }
+}
+// OMP PARALLEL REGION INNER CLASS DEFINITION ENDS
+
+
+
+// OMP PARALLEL REGION INNER CLASS DEFINITION BEGINS
+private class __omp_Class0 extends jomp.runtime.BusyTask {
+  // shared variables
+  int size;
+  int mortalidadeMes;
+  int quantMeses;
+  // firstprivate variables
+  // variables to hold results of reduction
+
+  public void go(int __omp_me) throws Throwable {
+  // firstprivate variables + init
+  // private variables
+  int i;
+  int internalConsumoLuz = 0;
+  long internalConsumoAlimentacao = 0;
+  // reduction variables, init to default
+    // OMP USER CODE BEGINS
+
+                                          { // OMP SECTIONS BLOCK BEGINS
+                                          // copy of firstprivate variables, initialized
+                                          // copy of lastprivate variables
+                                          // variables to hold result of reduction
+                                          boolean amLast=false;
+                                          {
+                                            // firstprivate variables + init
+                                            // [last]private variables
+                                            // reduction variables + init to default
+                                            // -------------------------------------
+                                            __ompName_1: while(true) {
+                                            switch((int)jomp.runtime.OMP.getTicket(__omp_me)) {
+                                            // OMP SECTION BLOCK 0 BEGINS
+                                              case 0: {
+                                            // OMP USER CODE BEGINS
+
+					{
+						for (i = 0; i < size; i++) {
+                                                         // OMP CRITICAL BLOCK BEGINS
+                                                         synchronized (jomp.runtime.OMP.getLockByName("")) {
+                                                         // OMP USER CODE BEGINS
+
+							{
+								Familia familiax = (Familia) familias[i];
+								if (familiax != null) {
+									Object[] pessoas = familiax.getIntegrantes().toArray();
+									int qntPessoas = pessoas.length;
+									for (int j = 0; j < qntPessoas; j++) {
+										internalConsumoAlimentacao += (long) (((Pessoa) pessoas[j]
+												).getPeso()
+												* FOODMAGICNUMBER * 30);
+									}
+									addConsumoAlimentacao(internalConsumoAlimentacao);
+								}
+							}
+                                                         // OMP USER CODE ENDS
+                                                         }
+                                                         // OMP CRITICAL BLOCK ENDS
+
+						}
+					}
+                                            // OMP USER CODE ENDS
+                                              };  break;
+                                            // OMP SECTION BLOCK 0 ENDS
+                                            // OMP SECTION BLOCK 1 BEGINS
+                                              case 1: {
+                                            // OMP USER CODE BEGINS
+
+					{
+						for (i = 0; i < size; i++) {
+                                                         // OMP CRITICAL BLOCK BEGINS
+                                                         synchronized (jomp.runtime.OMP.getLockByName("")) {
+                                                         // OMP USER CODE BEGINS
+
+							{
+								Familia familiax = (Familia) familias[i];
+								if (familiax != null) {
+									Object[] pessoas = familiax.getIntegrantes().toArray();
+									int qntPessoas = pessoas.length;
+									for (int j = 0; j < qntPessoas; j++) {
+										internalConsumoLuz += ((Pessoa) pessoas[j]
+												).getRenda()
+												* LIGHTMAGICNUMBER;
+									}
+									addConsumoLuz(internalConsumoLuz);
+								}
+							}
+                                                         // OMP USER CODE ENDS
+                                                         }
+                                                         // OMP CRITICAL BLOCK ENDS
+
+						}
+					}
+                                            // OMP USER CODE ENDS
+                                              };  break;
+                                            // OMP SECTION BLOCK 1 ENDS
+                                            // OMP SECTION BLOCK 2 BEGINS
+                                              case 2: {
+                                            // OMP USER CODE BEGINS
+
+					{
+						for (i = 0; i < size; i++) {
+                                                         // OMP CRITICAL BLOCK BEGINS
+                                                         synchronized (jomp.runtime.OMP.getLockByName("")) {
+                                                         // OMP USER CODE BEGINS
+
+							{
+								Familia familiax = (Familia) familias[i];
+								if (familiax != null) {
+									addConsumoAgua(familiax.getIntegrantes()
+											.size() * AGUAPORDIA * 30);
+								}
+							}
+                                                         // OMP USER CODE ENDS
+                                                         }
+                                                         // OMP CRITICAL BLOCK ENDS
+
+						}
+					}
+                                            // OMP USER CODE ENDS
+                                            amLast = true;
+                                              };  break;
+                                            // OMP SECTION BLOCK 2 ENDS
+
+                                              default: break __ompName_1;
+                                            } // of switch
+                                            } // of while
+                                            // call reducer
+                                            jomp.runtime.OMP.resetTicket(__omp_me);
+                                            jomp.runtime.OMP.doBarrier(__omp_me);
+                                            // copy lastprivate variables out
+                                            if (amLast) {
+                                            }
+                                          }
+                                          // update lastprivate variables
+                                          if (amLast) {
+                                          }
+                                          // update reduction variables
+                                          if (jomp.runtime.OMP.getThreadNum(__omp_me) == 0) {
+                                          }
+                                          } // OMP SECTIONS BLOCK ENDS
+
+    // OMP USER CODE ENDS
+  // call reducer
+  // output to _rd_ copy
+  if (jomp.runtime.OMP.getThreadNum(__omp_me) == 0) {
+  }
+  }
+}
+// OMP PARALLEL REGION INNER CLASS DEFINITION ENDS
+
+}
 

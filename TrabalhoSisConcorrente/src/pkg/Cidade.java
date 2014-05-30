@@ -1,6 +1,5 @@
 package pkg;
 
-import java.util.List;
 import java.util.Random;
 
 import jomp.runtime.OMP;
@@ -40,7 +39,8 @@ public class Cidade {
 			estastistica.append("\t\t");
 			estastistica.append("Alimento");
 			estastistica.append(LINE_SEPARATOR);
-			int mortalidadeMes = 3;
+			int mortalidadeMes = 6;
+			OMP.setNumThreads(6);
 			while (quantMeses > 0) {
 				consumoAgua = 0;
 				consumoAlimentacao = 0;
@@ -50,21 +50,20 @@ public class Cidade {
 				int internalConsumoLuz = 0;
 				long internalConsumoAlimentacao = 0;
 
-				// omp parallel sections
-				// private(i,internalConsumoLuz,internalConsumoAlimentacao)
+				//omp parallel sections private(i,internalConsumoLuz,internalConsumoAlimentacao)
 				{
-					// omp section
+					//omp section
 					{
 						for (i = 0; i < size; i++) {
-							// omp critical
+							//omp critical
 							{
 								Familia familiax = (Familia) familias[i];
 								if (familiax != null) {
-									List pessoas = familiax.getIntegrantes();
-									int qntPessoas = pessoas.size();
+									Object[] pessoas = familiax.getIntegrantes().toArray();
+									int qntPessoas = pessoas.length;
 									for (int j = 0; j < qntPessoas; j++) {
-										internalConsumoAlimentacao += (long) (((Pessoa) pessoas
-												.get(j)).getPeso()
+										internalConsumoAlimentacao += (long) (((Pessoa) pessoas[j]
+												).getPeso()
 												* FOODMAGICNUMBER * 30);
 									}
 									addConsumoAlimentacao(internalConsumoAlimentacao);
@@ -73,18 +72,18 @@ public class Cidade {
 						}
 					}
 
-					// omp section
+					//omp section
 					{
 						for (i = 0; i < size; i++) {
-							// omp critical
+							//omp critical
 							{
 								Familia familiax = (Familia) familias[i];
 								if (familiax != null) {
-									List pessoas = familiax.getIntegrantes();
-									int qntPessoas = pessoas.size();
+									Object[] pessoas = familiax.getIntegrantes().toArray();
+									int qntPessoas = pessoas.length;
 									for (int j = 0; j < qntPessoas; j++) {
-										internalConsumoLuz += ((Pessoa) pessoas
-												.get(j)).getRenda()
+										internalConsumoLuz += ((Pessoa) pessoas[j]
+												).getRenda()
 												* LIGHTMAGICNUMBER;
 									}
 									addConsumoLuz(internalConsumoLuz);
@@ -93,10 +92,10 @@ public class Cidade {
 						}
 					}
 
-					// omp section
+					//omp section
 					{
 						for (i = 0; i < size; i++) {
-							// omp critical
+							//omp critical
 							{
 								Familia familiax = (Familia) familias[i];
 								if (familiax != null) {
@@ -109,7 +108,7 @@ public class Cidade {
 				}
 				if (mortalidadeMes == 0){
 					mortalidade();
-					mortalidadeMes = 3;
+					mortalidadeMes = 6;
 				}else{
 					mortalidadeMes--;
 				}
@@ -130,13 +129,17 @@ public class Cidade {
 			quantMortes = random.nextInt((int) (tamanhaPopulacao * 0.05));
 		}
 		int i;
-		OMP.setNumThreads(quantMortes);
-		// omp parallel private(i)
-		for (i = 0; i < quantMortes; i++){
-			boolean matou = false;
-			while (!matou) {
-				int quantFamilias = random.nextInt(familias.length);
-				matou = familias[quantFamilias].matarPessoa();
+		//omp parallel private(i)
+		{
+			for (i = 0; i < quantMortes; i++){
+				boolean matou = false;
+				while (!matou) {
+					//omp critical
+					{
+						int quantFamilias = random.nextInt(familias.length);
+						matou = familias[quantFamilias].matarPessoa();
+					}
+				}
 			}
 		}
 	}
@@ -173,9 +176,9 @@ public class Cidade {
 		Random familyRandom = new Random();
 
 		int i = 0;
-		// omp parallel
+		//omp parallel
 		{
-			// omp for
+			//omp for
 			for (i = 0; i < cresimentoPop; i++) {
 				Familia familiax = (Familia) familias[familyRandom
 						.nextInt(familias.length)];
@@ -190,9 +193,9 @@ public class Cidade {
 		int i = 0;
 		int size = familias.length;
 		int tamPopulacao = 0;
-		// omp parallel reduction(+:tamPopulacao)
+		//omp parallel reduction(+:tamPopulacao)
 		{
-			// omp for
+			//omp for
 			for (i = 0; i < size; i++) {
 				Familia familiax = (Familia) familias[i];
 				if (familiax != null) {
