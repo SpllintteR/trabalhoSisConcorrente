@@ -55,10 +55,7 @@ public class Cidade_jomp {
 {
   __omp_Class0 __omp_Object0 = new __omp_Class0();
   // shared variables
-  __omp_Object0.internalConsumoAlimentacao = internalConsumoAlimentacao;
-  __omp_Object0.internalConsumoLuz = internalConsumoLuz;
   __omp_Object0.size = size;
-  __omp_Object0.i = i;
   __omp_Object0.mortalidadeMes = mortalidadeMes;
   __omp_Object0.quantMeses = quantMeses;
   // firstprivate variables
@@ -70,10 +67,7 @@ public class Cidade_jomp {
   }
   // reduction variables
   // shared variables
-  internalConsumoAlimentacao = __omp_Object0.internalConsumoAlimentacao;
-  internalConsumoLuz = __omp_Object0.internalConsumoLuz;
   size = __omp_Object0.size;
-  i = __omp_Object0.i;
   mortalidadeMes = __omp_Object0.mortalidadeMes;
   quantMeses = __omp_Object0.quantMeses;
 }
@@ -443,10 +437,7 @@ private class __omp_Class2 extends jomp.runtime.BusyTask {
 // OMP PARALLEL REGION INNER CLASS DEFINITION BEGINS
 private class __omp_Class0 extends jomp.runtime.BusyTask {
   // shared variables
-  long internalConsumoAlimentacao;
-  int internalConsumoLuz;
   int size;
-  int i;
   int mortalidadeMes;
   int quantMeses;
   // firstprivate variables
@@ -455,6 +446,9 @@ private class __omp_Class0 extends jomp.runtime.BusyTask {
   public void go(int __omp_me) throws Throwable {
   // firstprivate variables + init
   // private variables
+  int i;
+  int internalConsumoLuz = 0;
+  long internalConsumoAlimentacao = 0;
   // reduction variables, init to default
     // OMP USER CODE BEGINS
 
