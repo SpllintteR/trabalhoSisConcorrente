@@ -64,7 +64,6 @@ public class Cidade_jomp {
   } catch(Throwable __omp_exception) {
     System.err.println("OMP Warning: Illegal thread exception ignored!");
     System.err.println(__omp_exception);
-    __omp_exception.printStackTrace();
   }
   // reduction variables
   // shared variables
@@ -112,7 +111,6 @@ public class Cidade_jomp {
   } catch(Throwable __omp_exception) {
     System.err.println("OMP Warning: Illegal thread exception ignored!");
     System.err.println(__omp_exception);
-    __omp_exception.printStackTrace();
   }
   // reduction variables
   // shared variables
@@ -172,7 +170,6 @@ public class Cidade_jomp {
   } catch(Throwable __omp_exception) {
     System.err.println("OMP Warning: Illegal thread exception ignored!");
     System.err.println(__omp_exception);
-    __omp_exception.printStackTrace();
   }
   // reduction variables
   // shared variables
@@ -203,7 +200,6 @@ public class Cidade_jomp {
   } catch(Throwable __omp_exception) {
     System.err.println("OMP Warning: Illegal thread exception ignored!");
     System.err.println(__omp_exception);
-    __omp_exception.printStackTrace();
   }
   // reduction variables
   tamPopulacao  += __omp_Object7._rd_tamPopulacao;
@@ -350,10 +346,19 @@ private class __omp_Class3 extends jomp.runtime.BusyTask {
                              for(int i = (int)__omp_ChunkData4.start; i < __omp_ChunkData4.stop; i += __omp_ChunkData4.step) {
                                // OMP USER CODE BEGINS
  {
-				Familia familiax = familias[familyRandom
-						.nextInt(familias.length)];
+				Familia familiax = familias[familyRandom.nextInt(familias.length)];
 				if (familiax != null) {
-					familiax.addNovoIntegrante();
+                                         // OMP CRITICAL BLOCK BEGINS
+                                         synchronized (jomp.runtime.OMP.getLockByName("")) {
+                                         // OMP USER CODE BEGINS
+
+					{
+						familiax.addNovoIntegrante();
+					}
+                                         // OMP USER CODE ENDS
+                                         }
+                                         // OMP CRITICAL BLOCK ENDS
+
 				}
 			}
                                // OMP USER CODE ENDS

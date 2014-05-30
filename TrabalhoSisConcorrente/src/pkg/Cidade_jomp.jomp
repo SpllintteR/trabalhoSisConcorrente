@@ -183,10 +183,12 @@ public class Cidade_jomp {
 		{
 			//omp for
 			for (i = 0; i < cresimentoPop; i++) {
-				Familia familiax = familias[familyRandom
-						.nextInt(familias.length)];
+				Familia familiax = familias[familyRandom.nextInt(familias.length)];
 				if (familiax != null) {
-					familiax.addNovoIntegrante();
+					//omp critical
+					{
+						familiax.addNovoIntegrante();
+					}
 				}
 			}
 		}
