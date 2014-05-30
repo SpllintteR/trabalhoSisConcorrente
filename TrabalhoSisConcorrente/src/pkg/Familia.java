@@ -20,30 +20,10 @@ public class Familia implements Serializable {
 	}
 	
 	public void addNovoIntegrante() {
-		int mediaEscolaridade = 0;
-		double mediaRenda = 0;
-		double mediaPeso = 0;
-		int tamFamilia = integrantes.size();
-		if (tamFamilia != 0) {
-			int totalEscolaridade = 0;
-			double totalRenda = 0;
-			double totalPeso = 0;
-			for (int i = 0; i < tamFamilia; i++) {
-				Pessoa pessoa = integrantes.get(i);
-				totalEscolaridade += pessoa.getEscolaridade().ordinal();
-				totalRenda += pessoa.getRenda();
-				totalPeso += pessoa.getPeso();
-			}
-			mediaEscolaridade = totalEscolaridade / tamFamilia;
-			mediaRenda = totalRenda / tamFamilia;
-			mediaPeso = totalPeso / tamFamilia;
-			integrantes.add(new Pessoa(Escolaridade.values()[mediaEscolaridade], mediaRenda, mediaPeso));
-		} else {
-			Random random = new Random();
-			mediaEscolaridade = random.nextInt(5);
-			mediaRenda = random.nextDouble() * 200;
-			mediaPeso = random.nextFloat() * 20000;
-		}
+		Random random = new Random();
+		int	mediaEscolaridade = random.nextInt(5);
+		double mediaRenda = random.nextDouble() * 200;
+		double mediaPeso = random.nextFloat() * 200;
 		integrantes.add(new Pessoa(Escolaridade.values()[mediaEscolaridade], mediaRenda, mediaPeso));
 	}
 	

@@ -64,6 +64,7 @@ public class Cidade_jomp {
   } catch(Throwable __omp_exception) {
     System.err.println("OMP Warning: Illegal thread exception ignored!");
     System.err.println(__omp_exception);
+    __omp_exception.printStackTrace();
   }
   // reduction variables
   // shared variables
@@ -111,6 +112,7 @@ public class Cidade_jomp {
   } catch(Throwable __omp_exception) {
     System.err.println("OMP Warning: Illegal thread exception ignored!");
     System.err.println(__omp_exception);
+    __omp_exception.printStackTrace();
   }
   // reduction variables
   // shared variables
@@ -170,6 +172,7 @@ public class Cidade_jomp {
   } catch(Throwable __omp_exception) {
     System.err.println("OMP Warning: Illegal thread exception ignored!");
     System.err.println(__omp_exception);
+    __omp_exception.printStackTrace();
   }
   // reduction variables
   // shared variables
@@ -200,6 +203,7 @@ public class Cidade_jomp {
   } catch(Throwable __omp_exception) {
     System.err.println("OMP Warning: Illegal thread exception ignored!");
     System.err.println(__omp_exception);
+    __omp_exception.printStackTrace();
   }
   // reduction variables
   tamPopulacao  += __omp_Object7._rd_tamPopulacao;
