@@ -7,6 +7,8 @@ import BaseDados.FamiliasManager;
 
 public class Cidade {
 	
+	//teste
+	
 	private static final String	LINE_SEPARATOR	= System
 														.getProperty("line.separator");
 	private StringBuilder		estastistica	= new StringBuilder();
